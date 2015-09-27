@@ -37,7 +37,12 @@ var Snake = function() {
 
     this.draw = function() {
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        for (var i = 0, len = this.segments.length; i < len; i++) {
+            // Create a rectangle based on the length and direction of 
+            // the segment.
+            // if ()
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }
     };
 
     this.isInBounds = function() {
