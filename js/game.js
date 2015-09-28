@@ -186,6 +186,9 @@ var update = function() {
         fruitEaten++;
         // generate a new fruit.
         fruit = new Fruit();
+
+        // Grow by one block.
+        growBlockAmt = 1;
     }
 };
 
