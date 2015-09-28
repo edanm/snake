@@ -37,8 +37,8 @@ function timestamp() {
 
 var Snake = function() {
     this.color = "#000",
-    this.x = 60,
-    this.y = 60,
+    // this.x = 60,
+    // this.y = 60,
     this.width = BLOCK_SIZE,
     this.height = BLOCK_SIZE,
     this.segments = [{x: 60, y: 60},
@@ -55,16 +55,12 @@ var Snake = function() {
     };
 
     this.isInBounds = function() {
-        return this.x >= 0 && this.x <= CANVAS_WIDTH &&
-            this.y >= 0 && this.y <= CANVAS_HEIGHT;
+        var topSeg = this.segments[0];
+        return topSeg.x >= 0 && topSeg.x <= CANVAS_WIDTH &&
+            topSeg.y >= 0 && topSeg.y <= CANVAS_HEIGHT;
     };
 
     this.move = function() {
-        // return;
-        // snake.x += directions[currentDirection].x * + BLOCK_SIZE;
-        // snake.y += directions[currentDirection].y * + BLOCK_SIZE;
-
-        // Copy the first segment and move it, then delete the last segment.
         var segCopy =  {};
         segCopy.x = this.segments[0].x;
         segCopy.y = this.segments[0].y;
@@ -73,14 +69,20 @@ var Snake = function() {
         segCopy.y += directions[currentDirection].y * + BLOCK_SIZE;
 
         this.segments.unshift(segCopy);
-        this.segments.pop();
+
+        if (growBlockAmt > 0) {
+            growBlockAmt--;
+        } else {
+            this.segments.pop();
+        }
     };
 
     this.isTouchingFruit = function(fruit) {
-        if (this.x < fruit.x + fruit.width &&
-                this.x + this.width > fruit.x &&
-                this.y < fruit.y + fruit.height &&
-                this.height + this.y > fruit.y) {
+        var topSeg = this.segments[0];
+        if (topSeg.x < fruit.x + fruit.width &&
+                topSeg.x + this.width > fruit.x &&
+                topSeg.y < fruit.y + fruit.height &&
+                this.height + topSeg.y > fruit.y) {
             return true;
         }
         else {
@@ -166,12 +168,6 @@ var update = function() {
 
     // Check if the snake should move.
     if (((now - lastMoveTime) / 1000) > snakeSpeed) {
-        // if (directionChange.length >= 1) {
-            // // currentDirection = directionChange[directionChange.length - 1];
-            // console.log(directionChange);
-            // currentDirection = directionChange.pop();
-        // }
-
         // Check if we need to change direciton.
         if (directionChange !== "") {
             currentDirection = directionChange;
