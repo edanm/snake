@@ -18,7 +18,7 @@ document.body.appendChild(canvas);
 var isGameOver = false;
 var fruitEaten = 0;
 var snakeSpeed = 5 / 60; // How many moves per second we want to make.
-var growBlockAmt = 0;
+var growBlockAmt = 10;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -54,10 +54,28 @@ var Snake = function() {
         }
     };
 
-    this.isInBounds = function() {
+    this.isOutOfBounds = function() {
         var topSeg = this.segments[0];
-        return topSeg.x >= 0 && topSeg.x <= CANVAS_WIDTH &&
-            topSeg.y >= 0 && topSeg.y <= CANVAS_HEIGHT;
+        return !(topSeg.x >= 0 && topSeg.x <= CANVAS_WIDTH &&
+                topSeg.y >= 0 && topSeg.y <= CANVAS_HEIGHT);
+    };
+
+    this.isTouchingSelf = function() {
+        // Only need to check if the head is in the same position as a part of
+        // the body.
+        var topSeg = this.segments[0];
+        for (var i = 1, len = this.segments.length; i < len; i++) {
+            var curSeg = this.segments[i];
+            // console.log(topSeg.x);
+            // console.log(curSeg.x);
+            // console.log(topSeg.y);
+            // console.log(curSeg.y);
+            if (topSeg.x === curSeg.x && topSeg.y === curSeg.y) {
+                return true;
+            }
+        }
+
+        return false;
     };
 
     this.move = function() {
@@ -178,7 +196,7 @@ var update = function() {
     }
 
     // Check if snake is out of bounds.
-    if (!snake.isInBounds()) {
+    if (snake.isOutOfBounds() || snake.isTouchingSelf()) {
         gameOver();
     }
 
