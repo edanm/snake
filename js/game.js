@@ -21,7 +21,7 @@ var SPEED_HIGH = 2/60;
 var SPEED_MED = 5/60;
 var SPEED_LOW = 8/60;
 var snakeSpeed = SPEED_HIGH; // How many moves per second we want to make.
-var growBlockAmt = 6;
+var growBlockAmt = 50;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -60,9 +60,9 @@ var Snake = function() {
     this.isOutOfBounds = function() {
         var topSeg = this.segments[0];
         if ((topSeg.x) < 0 ||
-                (topSeg.x) > CANVAS_WIDTH ||
+                (topSeg.x) > CANVAS_WIDTH - BLOCK_SIZE ||
                 (topSeg.y) < 0 ||
-                (topSeg.y) > CANVAS_HEIGHT) {
+                (topSeg.y) > CANVAS_HEIGHT - BLOCK_SIZE) {
             return true;
         } else {
             return false;
@@ -88,6 +88,19 @@ var Snake = function() {
 
         return false;
     };
+
+    this.hasSegmentAtXY = function(x, y) {
+        for (var i = 0, len = this.segments.length; i < len; i++) {
+            var curSeg = this.segments[i];
+
+            if (x === curSeg.x && y === curSeg.y) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
 
     this.move = function() {
         var segCopy =  {};
@@ -130,11 +143,22 @@ function getRandomInt(min, max, roundTo) {
 }
 
 var Fruit = function() {
-    this.color = "#ff0000",
-    this.x = getRandomInt(20, CANVAS_WIDTH - 20, BLOCK_SIZE),
-    this.y = getRandomInt(20, CANVAS_HEIGHT - 20, BLOCK_SIZE),
-    this.width = BLOCK_SIZE,
-    this.height = BLOCK_SIZE,
+    this.color = "#ff0000";
+
+    var x = getRandomInt(20, CANVAS_WIDTH - 20, BLOCK_SIZE);
+    var y = getRandomInt(20, CANVAS_HEIGHT - 20, BLOCK_SIZE);
+
+    while (snake.hasSegmentAtXY(x, y)) {
+        // Check if the fruit intersects the snake somewhere.
+        x = getRandomInt(20, CANVAS_WIDTH - 20, BLOCK_SIZE);
+        y = getRandomInt(20, CANVAS_HEIGHT - 20, BLOCK_SIZE);
+    }
+    this.x = x;
+    this.y = y;
+
+
+    this.width = BLOCK_SIZE;
+    this.height = BLOCK_SIZE;
 
     this.draw = function() {
         ctx.fillStyle = this.color;
@@ -232,17 +256,19 @@ var render = function () {
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
         ctx.fillText("Apples eaten: " + fruitEaten, 5, 5);
+
+        snake.draw();
+        fruit.draw();
     }
     else {
         ctx.fillStyle = "#000";
         ctx.font = "25px Helvetica";
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Game Over!", 190, 200);
+        ctx.fillText("Game Over!", CANVAS_WIDTH / 2 - 60,
+                CANVAS_HEIGHT / 2 - 30);
     }
 
-    snake.draw();
-    fruit.draw();
 };
 
 
