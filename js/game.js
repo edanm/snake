@@ -17,8 +17,11 @@ document.body.appendChild(canvas);
 // Game logic
 var isGameOver = false;
 var fruitEaten = 0;
-var snakeSpeed = 5 / 60; // How many moves per second we want to make.
-var growBlockAmt = 10;
+var SPEED_HIGH = 2/60;
+var SPEED_MED = 5/60;
+var SPEED_LOW = 8/60;
+var snakeSpeed = SPEED_HIGH; // How many moves per second we want to make.
+var growBlockAmt = 6;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -56,8 +59,16 @@ var Snake = function() {
 
     this.isOutOfBounds = function() {
         var topSeg = this.segments[0];
-        return !(topSeg.x >= 0 && topSeg.x <= CANVAS_WIDTH &&
-                topSeg.y >= 0 && topSeg.y <= CANVAS_HEIGHT);
+        if ((topSeg.x) < 0 ||
+                (topSeg.x) > CANVAS_WIDTH ||
+                (topSeg.y) < 0 ||
+                (topSeg.y) > CANVAS_HEIGHT) {
+            return true;
+        } else {
+            return false;
+        }
+        // return !(topSeg.x >= 0 && topSeg.x <= CANVAS_WIDTH &&
+                // topSeg.y >= 0 && topSeg.y <= CANVAS_HEIGHT);
     };
 
     this.isTouchingSelf = function() {
