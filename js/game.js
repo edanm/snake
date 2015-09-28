@@ -18,6 +18,7 @@ document.body.appendChild(canvas);
 var isGameOver = false;
 var fruitEaten = 0;
 var snakeSpeed = 5 / 60; // How many moves per second we want to make.
+var growBlockAmt = 0;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -40,21 +41,17 @@ var Snake = function() {
     this.y = 60,
     this.width = BLOCK_SIZE,
     this.height = BLOCK_SIZE,
-    this.segments = [{x: 50, y: 50, length: 1, direction:STARTING_DIRECTION}];
+    this.segments = [{x: 60, y: 60},
+                        {x:40, y:60}];
 
     this.draw = function() {
         ctx.fillStyle = this.color;
-        // for (var i = 0, len = this.segments.length; i < len; i++) {
-            // seg = this.segments[i];
-            // // Create a rectangle based on the length and direction of 
-            // // the segment.
-            // rect.x = seg.x;
-            // rect.y = seg.y;
+        for (var i = 0, len = this.segments.length; i < len; i++) {
+            seg = this.segments[i];
 
-            // if ()
-
-        // }
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+            // Create rectangles for each block of the segment.
+            ctx.fillRect(seg.x, seg.y, this.width, this.height);
+        }
     };
 
     this.isInBounds = function() {
@@ -63,8 +60,20 @@ var Snake = function() {
     };
 
     this.move = function() {
-        snake.x += directions[currentDirection].x * + BLOCK_SIZE;
-        snake.y += directions[currentDirection].y * + BLOCK_SIZE;
+        // return;
+        // snake.x += directions[currentDirection].x * + BLOCK_SIZE;
+        // snake.y += directions[currentDirection].y * + BLOCK_SIZE;
+
+        // Copy the first segment and move it, then delete the last segment.
+        var segCopy =  {};
+        segCopy.x = this.segments[0].x;
+        segCopy.y = this.segments[0].y;
+        // Move it.
+        segCopy.x += directions[currentDirection].x * + BLOCK_SIZE;
+        segCopy.y += directions[currentDirection].y * + BLOCK_SIZE;
+
+        this.segments.unshift(segCopy);
+        this.segments.pop();
     };
 
     this.isTouchingFruit = function(fruit) {
