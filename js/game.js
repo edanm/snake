@@ -21,7 +21,7 @@ var SPEED_HIGH = 2/60;
 var SPEED_MED = 5/60;
 var SPEED_LOW = 8/60;
 var snakeSpeed = SPEED_HIGH; // How many moves per second we want to make.
-var growBlockAmt = 50;
+var growBlockAmt = 4;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -77,10 +77,6 @@ var Snake = function() {
         var topSeg = this.segments[0];
         for (var i = 1, len = this.segments.length; i < len; i++) {
             var curSeg = this.segments[i];
-            // console.log(topSeg.x);
-            // console.log(curSeg.x);
-            // console.log(topSeg.y);
-            // console.log(curSeg.y);
             if (topSeg.x === curSeg.x && topSeg.y === curSeg.y) {
                 return true;
             }
@@ -182,6 +178,7 @@ var processInput = function() {
             if (currentDirection === "left" ||
                     currentDirection === "right") {
                 directionChange = "up";
+                delete keysDown[38];
             }
         }
 
@@ -189,6 +186,7 @@ var processInput = function() {
             if (currentDirection === "left" ||
                     currentDirection === "right") {
                 directionChange = "down";
+                delete keysDown[40];
             }
         }
 
@@ -196,6 +194,7 @@ var processInput = function() {
             if (currentDirection === "up" ||
                     currentDirection === "down") {
                 directionChange = "left";
+                delete keysDown[37];
             }
         }
 
@@ -203,6 +202,7 @@ var processInput = function() {
             if (currentDirection === "up" ||
                     currentDirection === "down") {
                 directionChange = "right";
+                delete keysDown[39];
             }
         }
     }
@@ -218,11 +218,11 @@ var update = function() {
     var now = timestamp();
 
     processInput(); // Gets us the direction change.
-
     // Check if the snake should move.
     if (((now - lastMoveTime) / 1000) > snakeSpeed) {
-        // Check if we need to change direciton.
+        // Check if we need to change direction.
         if (directionChange !== "") {
+            console.log(directionChange);
             currentDirection = directionChange;
             directionChange = "";
         }
