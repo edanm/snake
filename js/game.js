@@ -1,7 +1,9 @@
 console.log("game starting");
 
-var CANVAS_WIDTH = 400;
-var CANVAS_HEIGHT = 300;
+
+var BLOCK_SIZE = 20;
+var CANVAS_WIDTH = BLOCK_SIZE * 30;
+var CANVAS_HEIGHT = BLOCK_SIZE * 15;
 
 // Create the canvas
 var canvas = document.createElement("canvas");
@@ -15,7 +17,7 @@ document.body.appendChild(canvas);
 // Game logic
 var isGameOver = false;
 var fruitEaten = 0;
-var snakeSpeed = 4;
+var snakeSpeed = 5 / 60; // How many moves per second we want to make.
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -27,22 +29,32 @@ var directions = {
 var STARTING_DIRECTION = "right";
 var currentDirection = STARTING_DIRECTION;
 
+function timestamp() {
+  return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+}
+
+
 var Snake = function() {
     this.color = "#000",
-    this.x = 50,
-    this.y = 50,
-    this.width = 10,
-    this.height = 10,
-    this.segments = [{length: 1, direction:STARTING_DIRECTION}];
+    this.x = 60,
+    this.y = 60,
+    this.width = BLOCK_SIZE,
+    this.height = BLOCK_SIZE,
+    this.segments = [{x: 50, y: 50, length: 1, direction:STARTING_DIRECTION}];
 
     this.draw = function() {
         ctx.fillStyle = this.color;
-        for (var i = 0, len = this.segments.length; i < len; i++) {
-            // Create a rectangle based on the length and direction of 
-            // the segment.
+        // for (var i = 0, len = this.segments.length; i < len; i++) {
+            // seg = this.segments[i];
+            // // Create a rectangle based on the length and direction of 
+            // // the segment.
+            // rect.x = seg.x;
+            // rect.y = seg.y;
+
             // if ()
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
+
+        // }
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     };
 
     this.isInBounds = function() {
@@ -51,8 +63,8 @@ var Snake = function() {
     };
 
     this.move = function() {
-        snake.x += directions[currentDirection].x * snakeSpeed;
-        snake.y += directions[currentDirection].y * snakeSpeed;
+        snake.x += directions[currentDirection].x * + BLOCK_SIZE;
+        snake.y += directions[currentDirection].y * + BLOCK_SIZE;
     };
 
     this.isTouchingFruit = function(fruit) {
@@ -71,15 +83,18 @@ var snake = new Snake();
 
 // Returns a random integer between min (included) and max (excluded)
 // Using Math.round() will give you a non-uniform distribution!
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
+function getRandomInt(min, max, roundTo) {
+    var num = Math.floor(Math.random() * (max - min)) + min;
+    num = num - (num % roundTo);
+    return num;
 }
+
 var Fruit = function() {
     this.color = "#ff0000",
-    this.x = getRandomInt(20, CANVAS_WIDTH - 20),
-    this.y = getRandomInt(20, CANVAS_HEIGHT - 20),
-    this.width = 10,
-    this.height = 10,
+    this.x = getRandomInt(20, CANVAS_WIDTH - 20, BLOCK_SIZE),
+    this.y = getRandomInt(20, CANVAS_HEIGHT - 20, BLOCK_SIZE),
+    this.width = BLOCK_SIZE,
+    this.height = BLOCK_SIZE,
 
     this.draw = function() {
         ctx.fillStyle = this.color;
@@ -93,46 +108,69 @@ function gameOver() {
     isGameOver = true;
 }
 
+var directionChange = "";
+var directionChangeSecond = "";
 
 var processInput = function() {
-    if (38 in keysDown) { // Player holding up.
-        if (currentDirection === "left" ||
-                currentDirection === "right") {
-            currentDirection = "up";
+    // We haven't processed a direction change yet:
+    if (directionChange === "" ) {
+        if (38 in keysDown) { // Player holding up.
+            if (currentDirection === "left" ||
+                    currentDirection === "right") {
+                directionChange = "up";
+            }
         }
-    }
 
-    if (40 in keysDown) { // Player holding down.
-        if (currentDirection === "left" ||
-                currentDirection === "right") {
-            currentDirection = "down";
+        if (40 in keysDown) { // Player holding down.
+            if (currentDirection === "left" ||
+                    currentDirection === "right") {
+                directionChange = "down";
+            }
         }
-    }
 
-    if (37 in keysDown) { // Player holding left.
-        if (currentDirection === "up" ||
-                currentDirection === "down") {
-            currentDirection = "left";
+        if (37 in keysDown) { // Player holding left.
+            if (currentDirection === "up" ||
+                    currentDirection === "down") {
+                directionChange = "left";
+            }
         }
-    }
 
-    if (39 in keysDown) { // Player holding right.
-        if (currentDirection === "up" ||
-                currentDirection === "down") {
-            currentDirection = "right";
+        if (39 in keysDown) { // Player holding right.
+            if (currentDirection === "up" ||
+                    currentDirection === "down") {
+                directionChange = "right";
+            }
         }
     }
 };
 
+var lastMoveTime = timestamp();
 var update = function() {
     if (isGameOver) {
         // Nothing to do!
         return;
     }
 
-    processInput();
+    var now = timestamp();
 
-    snake.move();
+    processInput(); // Gets us the direction change.
+
+    // Check if the snake should move.
+    if (((now - lastMoveTime) / 1000) > snakeSpeed) {
+        // if (directionChange.length >= 1) {
+            // // currentDirection = directionChange[directionChange.length - 1];
+            // console.log(directionChange);
+            // currentDirection = directionChange.pop();
+        // }
+
+        // Check if we need to change direciton.
+        if (directionChange !== "") {
+            currentDirection = directionChange;
+            directionChange = "";
+        }
+        lastMoveTime = now;
+        snake.move();
+    }
 
     // Check if snake is out of bounds.
     if (!snake.isInBounds()) {
@@ -176,21 +214,17 @@ var render = function () {
 // Game loop
 //
 
-function timestamp() {
-  return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
-}
-
 var now,
     dt   = 0,
     last = timestamp(),
-    step = 1/30;
+    step = 1/60;
 
 function frame() {
     now = timestamp();
     dt = dt + Math.min(1, (now - last) / 1000);
     while(dt > step) {
+        update(dt);
         dt = dt - step;
-        update(step);
     }
     render(dt);
     last = now;
