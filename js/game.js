@@ -2,8 +2,8 @@ console.log("game starting");
 
 
 var BLOCK_SIZE = 20;
-var CANVAS_WIDTH = BLOCK_SIZE * 30;
-var CANVAS_HEIGHT = BLOCK_SIZE * 15;
+var CANVAS_WIDTH = BLOCK_SIZE * 50;
+var CANVAS_HEIGHT = BLOCK_SIZE * 30;
 
 // Create the canvas
 var canvas = document.createElement("canvas");
@@ -17,11 +17,14 @@ document.body.appendChild(canvas);
 // Game logic
 var isGameOver = false;
 var fruitEaten = 0;
-var SPEED_HIGH = 2/60;
+var SPEED_INSANE = 1/50;
+var SPEED_HIGH = 1/30;
 var SPEED_MED = 5/60;
 var SPEED_LOW = 8/60;
-var snakeSpeed = SPEED_HIGH; // How many moves per second we want to make.
-var growBlockAmt = 4;
+var snakeSpeed = SPEED_INSANE; // How many moves per second we want to make.
+
+var growBlockAmt = 4; // This is the starting amount to grow.
+var growBlockAfterEatingAmt = 4;
 
 var directions = {
     "up": {x: 0, y: -1},
@@ -241,7 +244,7 @@ var update = function() {
         fruit = new Fruit();
 
         // Grow by one block.
-        growBlockAmt = 1;
+        growBlockAmt = growBlockAfterEatingAmt;
     }
 };
 
